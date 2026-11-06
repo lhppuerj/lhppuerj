@@ -51,4 +51,47 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     });
 
+    const contactForm = document.querySelector('#contactForm');
+    const submitButton = document.querySelector('#submitButton');
+    const submitSuccessMessage = document.querySelector('#submitSuccessMessage');
+    const submitErrorMessage = document.querySelector('#submitErrorMessage');
+
+    if (
+        contactForm instanceof HTMLFormElement &&
+        submitButton instanceof HTMLButtonElement &&
+        submitSuccessMessage instanceof HTMLElement &&
+        submitErrorMessage instanceof HTMLElement
+    ) {
+        contactForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+            submitSuccessMessage.classList.add('d-none');
+            submitErrorMessage.classList.add('d-none');
+
+            try {
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: new FormData(contactForm),
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Formspree respondeu com status ${response.status}`);
+                }
+
+                contactForm.reset();
+                submitSuccessMessage.classList.remove('d-none');
+            } catch (error) {
+                console.error('Falha ao enviar mensagem pelo formulário de contato.', error);
+                submitErrorMessage.classList.remove('d-none');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Enviar mensagem!';
+            }
+        });
+    }
+
 });
